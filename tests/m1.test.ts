@@ -69,3 +69,26 @@ describe('pause', () => {
     expect(after.velocity.z).toBe(before.velocity.z);
   });
 });
+
+describe('flick Y mapping onto table plane', () => {
+  it('swipe toward far end (dy < 0) sends the ball toward -z with x ~ 0', () => {
+    const impulse = impulseFromPointerDelta(0, -80);
+    expect(impulse.z).toBeLessThan(0);
+    expect(impulse.x).toBeCloseTo(0, 6);
+    expect(impulse.tap).toBe(false);
+  });
+
+  it('swipe right (dx > 0) maps to +x and does not flip', () => {
+    const impulse = impulseFromPointerDelta(80, 0);
+    expect(impulse.x).toBeGreaterThan(0);
+    expect(impulse.z).toBeCloseTo(0, 6);
+    expect(impulse.tap).toBe(false);
+  });
+
+  it('swipe toward camera (dy > 0) sends the ball toward +z', () => {
+    const impulse = impulseFromPointerDelta(0, 80);
+    expect(impulse.z).toBeGreaterThan(0);
+    expect(impulse.x).toBeCloseTo(0, 6);
+    expect(impulse.tap).toBe(false);
+  });
+});

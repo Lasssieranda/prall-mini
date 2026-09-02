@@ -4,10 +4,10 @@ import { physicsStepSeconds } from './loop';
 export const MAX_IMPULSE = 14;
 export const IMPULSE_PIXEL_SCALE = 0.055;
 export const TAP_PIXEL_THRESHOLD = 12;
-export const FLICK_UP = 1.15;
+export const FLICK_UP = 2.1;
 export const TAP_NUDGE = { x: 0, y: 0.55, z: -2.4 };
 export const FALL_RESET_DELAY_S = 1.2;
-export const RESTITUTION = 0.8;
+export const RESTITUTION = 0.88;
 export const BALL_RADIUS = 0.38;
 export const BALL_MASS = 1;
 export const BLOCK_MASS = 0.65;
@@ -74,7 +74,8 @@ export function clampImpulse(x: number, y: number, z: number, max = MAX_IMPULSE)
 
 /**
  * Screen pointer delta → impulse in the table plane (XZ) plus a little up (Y).
- * Screen +x → world +x, screen -y (flick up) → world -z (into the table).
+ * Screen +x → world +x; screen -y (swipe toward far end) → world -z (back of table).
+ * Do not mirror Y against the camera.
  * Tap (tiny delta) = small nudge forward.
  */
 export function impulseFromPointerDelta(dx: number, dy: number): Impulse {
@@ -83,8 +84,8 @@ export function impulseFromPointerDelta(dx: number, dy: number): Impulse {
     const magnitude = Math.hypot(TAP_NUDGE.x, TAP_NUDGE.y, TAP_NUDGE.z);
     return { ...TAP_NUDGE, magnitude, tap: true };
   }
-  const ix = dx * IMPULSE_PIXEL_SCALE;
-  const iz = -dy * IMPULSE_PIXEL_SCALE;
+  const ix = dx * IMPULSE_PIXEL_SCALE; // horizontal unchanged
+  const iz = dy * IMPULSE_PIXEL_SCALE; // swipe up (dy<0) → iz<0 → toward back of table
   const iy = FLICK_UP;
   return { ...clampImpulse(ix, iy, iz), tap: false };
 }
